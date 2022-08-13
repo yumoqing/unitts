@@ -13,10 +13,7 @@ class TTSEngine:
 	def __init__(self, driverName):
 		self.driver = buildDriver(self, driverName)
 		self._connects = {}
-		self._sentences = []
-		self.current_id = None
 		self._busy = False
-		self.current_sentences = None
 
 	def setBusy(self, f):
 		self._busy = f
@@ -32,29 +29,17 @@ class TTSEngine:
 			del self._connects[subject]
 		
 	def say(self, text, pos=0):
-		if self.isBusy:
+		if self.isBusy():
+			print('tts is busy, do not thing')
 			return
-		self.start_pos = pos
+		self.current_pos = pos
 		sentences = text_to_sentences(text)
-		id = getID()
-		self._sentences.append([id,sentences])
-		if self.current_id is None:
-			self.go_next_text()
-			self.say_current_sentences()
-		return id
+		self.say_sentences(sentences)
 
-	def go_next_text(self):
-		if len(self._sentences) < 1:
-			return False
-		self.current_id, self.current_sentences = \
-			self._sentences.pop(0)
-		return True
-
-	def get_next_sentence(self):
-		if len(self.current_sentences) < 1:
-			return None
-		return self.current_sentences.pop(0)
-
+	def say_sentences(self, sentences):
+		for s in sentences:
+			self.driver.say(s)
+		
 	def notify(self, subject, *args, **kw):
 		for s,f in self._connects.items():
 			if s == subject:
@@ -63,24 +48,6 @@ class TTSEngine:
 	def isBusy(self):
 		return self._busy
 
-	def say_current_sentences(self):
-		while True:
-			s = self.get_next_sentence()
-			if s is None:
-				self.notify('finished-text', id=self.current_id)
-				f = self.go_next_text()
-				if not f:
-					return
-				self.ccurrent_pos = 0
-				self.notify('started-text', id=self.current_id)
-			if s is None:
-				return
-			pos = s.start_pos + len(s.text)
-			if s.start<= self.current_pos and \
-							pos >= self.ccurrent_pos:
-				break
-		self.current_pos += len(s.text)
-		self.driver.say(s)
 
 	def stop(self):
 		pass
