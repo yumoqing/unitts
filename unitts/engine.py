@@ -15,7 +15,11 @@ class TTSEngine:
 		self._connects = {}
 		self._sentences = []
 		self.current_id = None
+		self._busy = False
 		self.current_sentences = None
+
+	def setBusy(self, f):
+		self._busy = f
 
 	def connect(self, subject, func):
 		if subject in ['started-sentence', 'started-word',
@@ -27,13 +31,16 @@ class TTSEngine:
 						'started-text', 'finished-text']:
 			del self._connects[subject]
 		
-	def say(self, sentence):
+	def say(self, text, pos=0):
+		if self.isBusy:
+			return
+		self.start_pos = pos
 		sentences = text_to_sentences(text)
 		id = getID()
 		self._sentences.append([id,sentences])
 		if self.current_id is None:
 			self.go_next_text()
-			self.say_current_sentences(pos)
+			self.say_current_sentences()
 		return id
 
 	def go_next_text(self):
@@ -54,7 +61,7 @@ class TTSEngine:
 				f(*args, **kw)
 
 	def isBusy(self):
-		return self.driver.isBusy()
+		return self._busy
 
 	def say_current_sentences(self):
 		while True:
@@ -84,4 +91,8 @@ class TTSEngine:
 	def resume(self):
 		pass
 
+	def startLoop(self):
+		self.driver.startLoop()
 
+	def endLoop(self):
+		self.driver.endLoop()

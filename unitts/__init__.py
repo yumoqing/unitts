@@ -6,7 +6,7 @@ _activeEngines = weakref.WeakValueDictionary()
 
 def init(driverName):
 	try:	
-		eng = _activeEngine[driverName]
+		eng = _activeEngines[driverName]
 	except KeyError:
 		eng = TTSEngine(driverName)
 		_activeEngines[driverName] = eng
