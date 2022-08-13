@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from  unitts.version import __version__
 try:
 	from setuptools import setup
 except ImportError:
 	from distutils.core import setup
 
-# usage:
-# python setup.py bdist_wininst generate a window executable file
-# python setup.py bdist_egg generate a egg file
-# Release information about eway
+with open('unitts/version.py', 'r') as f:
+	x = f.read()
+	y = x[x.index("'")+1:]
+	z = y[:y.index("'")]
+	version = z
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-version = __version__
 name = "unitts"
-description = "unitts"
+description = "unitts is a api for tts engine"
 author = "yumoqing"
 email = "yumoqing@gmail.com"
 
@@ -37,7 +38,7 @@ setup(
 	keywords = [
 	],
 	url="https://github.com/yumoqing/unitts",
-	long_description=description,
+	long_description=long_description,
 	long_description_content_type="text/markdown",
 	classifiers = [
 		'Operating System :: OS Independent',

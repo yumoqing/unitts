@@ -27,7 +27,7 @@ class TTSEngine:
 						'started-text', 'finished-text']:
 			del self._connects[subject]
 		
-	def say(self, text, pos=0):
+	def say(self, sentence):
 		sentences = text_to_sentences(text)
 		id = getID()
 		self._sentences.append([id,sentences])
