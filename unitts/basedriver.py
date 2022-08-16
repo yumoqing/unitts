@@ -85,6 +85,11 @@ class BaseDriver:
 	def __del__(self):
 		self.destroy()
 
+	def is_in_loop(self):
+		if self.task:
+			return True
+		return False
+
 	def startLoop(self, *args):
 		print('startLoop() called')
 		self._proxy.setBusy(False)
