@@ -63,3 +63,10 @@ class TTSEngine:
 
 	def endLoop(self):
 		self.driver.endLoop()
+	
+	def getProperty(self, name):
+		return self.driver.getProperty(name)
+
+	def setProperty(self, name, value):
+		self.driver.setProperty(name, value)
+
