@@ -62,7 +62,7 @@ class TTSEngine:
 		self.driver.startLoop()
 
 	def is_in_loop(self):
-		return self.driver.in_in_loop()
+		return self.driver.is_in_loop()
 
 	def endLoop(self):
 		self.driver.endLoop()
