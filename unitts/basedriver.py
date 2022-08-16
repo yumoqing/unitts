@@ -20,6 +20,15 @@ class BaseDriver:
 		self._completed = True
 		self.running = True
 		self.task = None
+		self._speaked = False
+		self._speaking = False
+		self.voices = self.get_voices()
+
+	def get_voices(self):
+		return []
+
+	def set_type_voice(self, sentence):
+		raise Exception('fixme')
 
 	def backtask(self):
 		print('player back task running ...')
@@ -29,16 +38,28 @@ class BaseDriver:
 			time.sleep(0.01)
 		print('player back task end ...')
 
-	
+	def is_speaking(self):
+		return self._speaked
+
 	def speak_finish(self):
 		self._proxy.notify('finished-sentence')
+		self._speaking = False
+		self._speaked = False
 
 	def _push(self, cmd):
 		self.cmds.append(cmd)
 
+	def isSpeaking(self):
+		return self._speaked
+
 	def _pump(self):
-		if self.player.is_busy():
-			# print('player is busy')
+		if self._speaking:
+			# print('tts driver is busy')
+			if not self._speaked:
+				self._speaked = self.isSpeaking()
+			else:
+				if not self.isSpeaking():
+					self.speak_finish()
 			return False
 		if len(self.cmds) < 1:
 			# print('No cmd to do')
@@ -47,18 +68,19 @@ class BaseDriver:
 				self._proxy.notify('finished-text')
 			return False
 
-		pos, fn = self.cmds.pop(0)
-		self.player.set_source(fn)
-		self.player.play()
-		print('play ...', fn)
+		self._speaking = True
+		args = self.cmds.pop(0)
+		print('start speak', args)
+		self.command(*args)
+		pos, _ = args
 		self._proxy.notify('started-sentence', pos)
 		return True
 
 	def destroy(self):
-		self.player.unload()
 		if self.task:
 			self.running = False
 			self.task.join()
+			self.task = None
 	
 	def __del__(self):
 		self.destroy()
@@ -78,43 +100,23 @@ class BaseDriver:
 			self.task.join()
 			self.task = None
 
-	def set_type_voice(self, attrs, sentence):
-		y = self._tts
-		y.tts_set_rate(attrs.get('rate', self.rate))
-		y.tts_set_pitch(attrs.get('pitch', self.pitch))
-		y.tts_set_voice(attrs.get('voice', self.voice))
+	def pre_command(self, sentence):
+		# return sentence's start_pos and a object to use to product voice
+		# self.set_type_voice(sentence)
+		return sentence.start_pos, sentence.text
+	
+	def command(self, *args):
+		raise Exception('fixme')
 
-	def get_audio_file(self, sentence):
-		y = self._tts
-		if sentence.dialog:
-			self.set_type_voice(self.dialog_voice, sentence)
-		else:
-			self.set_type_voice(self.normal_voice, sentence)
-		y.tts_set_format(self.format)
-		# y.tts_set_language(sentence.lang)
-		raw = y.tts(sentence.text)
-		if raw is None:
-			print('baidu api error')
-			return
-		mp3file = write_tmp_mp3file(raw)
-		self._push((sentence.start_pos, mp3file))
-		return mp3file
-		
 	def say(self, sentence):
-		try:
-			print('baidu_d_tts driver,say() called')
-			self._proxy.setBusy(False)
-			self._completed = True
-			mp3file = self.get_audio_file(sentence)
-
-		except Exception as e:
-			print('error:', e)
-			print_exc()
+		self._proxy.setBusy(False)
+		self._completed = True
+		args = self.pre_command(sentence)
+		self._push(args)
 
 	def stop(self):
 		if self._proxy.isBusy():
 			self._completed = False
-		self.player.stop()
 
 	def getProperty(self, name):
 		if name == 'normal_voice':
@@ -126,7 +128,7 @@ class BaseDriver:
 			return Voices
 
 		if name == 'voice':
-			for v in Voices:
+			for v in self.voices:
 				if v.id == self.voice:
 					return v
 			return None
