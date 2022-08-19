@@ -117,6 +117,8 @@ class BaseDriver:
 		self._proxy.setBusy(False)
 		self._completed = True
 		args = self.pre_command(sentence)
+		if None in args:
+			return
 		self._push(args)
 
 	def stop(self):
