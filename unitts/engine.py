@@ -30,10 +30,13 @@ class TTSEngine:
 		
 	def say(self, text, pos=0):
 		if self.isBusy():
-			print('tts is busy, do not thing')
+			print('tts is busy, do no thing')
 			return
-		self.current_pos = pos
-		sentences = text_to_sentences(text)
+		if isinstance(text, str):
+			self.current_pos = pos
+			sentences = text_to_sentences(text)
+		else:
+			sentences = text
 		self.say_sentences(sentences)
 
 	def say_sentences(self, sentences):
