@@ -15,6 +15,12 @@ class TTSEngine:
 		self._connects = {}
 		self._busy = False
 
+	def driver_info(self):
+		return {
+			'commands':self.driver.cmds,
+			'busy':self._busy
+		}
+
 	def setBusy(self, f):
 		self._busy = f
 
@@ -32,11 +38,13 @@ class TTSEngine:
 		if self.isBusy():
 			print('tts is busy, do no thing')
 			return
+
 		if isinstance(text, str):
 			self.current_pos = pos
 			sentences = text_to_sentences(text)
 		else:
 			sentences = text
+		self.notify('started-text')
 		self.say_sentences(sentences)
 
 	def say_sentences(self, sentences):
