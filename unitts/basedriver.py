@@ -63,9 +63,8 @@ class BaseDriver:
 			return False
 		if len(self.cmds) < 1:
 			# print('No cmd to do')
-			if self._proxy.isBusy():
-				self._proxy.setBusy(False)
-				self._proxy.notify('finished-text')
+			self._proxy.setBusy(False)
+			self._proxy.notify('finished-text')
 			return False
 
 		self._speaking = True

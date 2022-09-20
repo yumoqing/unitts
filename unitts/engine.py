@@ -18,6 +18,8 @@ class TTSEngine:
 	def driver_info(self):
 		return {
 			'commands':self.driver.cmds,
+			'runnimg':self.driver.running,
+			'task':self.driver.task,
 			'busy':self._busy
 		}
 
