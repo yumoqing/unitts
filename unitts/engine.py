@@ -2,7 +2,7 @@ from text2sentences import text_to_sentences
 from appPublic.uniqueID import getID
 import importlib
 
-def buildDriver(tts, driverName):
+def build_driver(tts, driverName):
 	_module = importlib.import_module(driverName)
 	return _module.buildDriver(tts)
 	
@@ -11,7 +11,7 @@ class TTSEngine:
 	Usages:
 	"""
 	def __init__(self, driverName):
-		self.driver = buildDriver(self, driverName)
+		self.driver = build_driver(self, driverName)
 		self._connects = {}
 		self._busy = False
 
